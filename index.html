@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#fffdf8">
+  <meta name="description" content="Nuestro álbum de amor, recuerdos y frases diarias.">
+  <meta property="og:title" content="Nosotros ✦">
+  <meta property="og:description" content="Un lugar bonito para guardar lo nuestro.">
+  <meta property="og:type" content="website">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <title>Nosotros ✦</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Great+Vibes&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="config-warning" id="configWarning" hidden>
+    <div>
+      <p>Falta configurar Supabase. Copia <code>.env.example</code> a <code>.env</code> y agrega tus credenciales antes de desplegar.</p>
+    </div>
+  </div>
+
+  <section class="auth-gate" id="authGate">
+    <form class="auth-card" id="authForm">
+      <p class="eyebrow">SOLO PARA NOSOTROS</p>
+      <h1>Nosotros</h1>
+      <p>Entren con la cuenta que comparten para ver su álbum, frases y recuerdos.</p>
+      <label>Correo<input id="authEmail" type="email" required autocomplete="username" placeholder="correo@ejemplo.com"></label>
+      <label>Contraseña<input id="authPassword" type="password" required autocomplete="current-password" placeholder="••••••••"></label>
+      <p class="auth-error" id="authError" aria-live="polite"></p>
+      <button class="auth-submit" id="authSubmit" type="submit">entrar</button>
+    </form>
+  </section>
+
+  <div id="appRoot" hidden>
+    <main class="app-shell">
+      <header class="topbar">
+        <span class="brand">para ti <i>♡</i></span>
+        <div class="topbar-actions">
+          <button class="icon-button" id="authSignOut" type="button" aria-label="Cerrar sesión">↩</button>
+          <button class="icon-button" id="heartButton" type="button" aria-label="Enviar amor">♡</button>
+        </div>
+      </header>
+
+      <div class="app-pages">
+        <section class="app-page is-active" data-page="inicio" aria-labelledby="home-title">
+          <div class="hero">
+            <p class="eyebrow" id="todayLabel"></p>
+            <h1 id="home-title">Mi lugar favorito<br>siempre será <em>contigo.</em></h1>
+            <div class="hero-art">
+              <div class="sun"></div>
+              <div class="flower flower-one">✦</div>
+              <div class="flower flower-two">✿</div>
+              <img src="/media/Totoro1.png" alt="Un pequeño Totoro" width="196" height="196">
+            </div>
+          </div>
+          <div class="closing reveal">
+            <p class="eyebrow">PARA SIEMPRE</p>
+            <h2>Gracias por hacer<br>mi mundo <em>más bonito.</em></h2>
+            <button id="loveLetter" type="button">abre una cartita</button>
+          </div>
+        </section>
+
+        <section class="app-page" data-page="frase" aria-labelledby="quote-title" hidden>
+          <div class="page-intro">
+            <p class="eyebrow">UN DETALLE DIARIO</p>
+            <h2 id="quote-title">Razones para<br><em>amarte.</em></h2>
+          </div>
+          <div class="love-note reveal">
+            <div class="note-heading">
+              <span id="quoteDay">001</span>
+              <p>algo que amo de ti hoy</p>
+            </div>
+            <p class="daily-quote" id="dailyQuote"></p>
+            <span class="little-heart">♥</span>
+          </div>
+          <p class="daily-caption">365 razones, una por cada día del año. Vuelve mañana por otra.</p>
+        </section>
+
+        <section class="app-page" data-page="recuerdos" aria-labelledby="memory-title" hidden>
+          <section class="memories">
+            <div class="section-title reveal">
+              <div>
+                <p class="eyebrow">NUESTRO ÁLBUM</p>
+                <h2 id="memory-title">Recuerdos que<br><em>guardaría por siempre.</em></h2>
+              </div>
+              <span class="count" id="memoryCount">00</span>
+            </div>
+            <div id="memoryList" aria-live="polite"></div>
+            <button class="add-memory reveal" id="addMemory" type="button">+ guardar un recuerdo</button>
+            <article class="polaroid reveal">
+              <div class="polaroid-image">
+                <img src="/media/Totoro1.png" alt="Nuestro pequeño compañero" loading="lazy">
+              </div>
+              <p>y todas las pequeñas cosas...</p>
+              <span>∞</span>
+            </article>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button type="button" class="nav-link is-active" data-page-target="inicio" aria-current="page"><span aria-hidden="true">⌂</span><small>Inicio</small></button>
+      <button type="button" class="nav-link" data-page-target="frase"><span aria-hidden="true">✦</span><small>Hoy</small></button>
+      <button type="button" class="nav-link" data-page-target="recuerdos"><span aria-hidden="true">▧</span><small>Recuerdos</small></button>
+    </nav>
+  </div>
+
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card" id="detailCard">
+      <button class="close" id="closeModal" type="button" aria-label="Cerrar">×</button>
+      <p class="eyebrow" id="modalDate"></p>
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <div class="share-panel" id="sharePanel" hidden>
+        <p>COMPARTIR RECUERDO</p>
+        <button type="button" class="share-btn share-btn--primary" id="shareStory">♡ compartir en historias y redes</button>
+        <button type="button" class="share-btn" id="shareWhatsApp">whatsapp</button>
+        <button type="button" class="share-btn" id="shareFacebook">facebook</button>
+        <button type="button" class="share-btn" id="shareCopy">copiar enlace</button>
+      </div>
+      <div class="modal-actions" id="modalActions" hidden>
+        <button type="button" class="modal-action" id="editMemory">editar recuerdo</button>
+        <button type="button" class="modal-action modal-action--danger" id="deleteMemory">eliminar</button>
+      </div>
+      <div class="modal-hearts">♥ ♥ ♥</div>
+    </div>
+  </div>
+
+  <div class="modal editor" id="editor" aria-hidden="true">
+    <form class="modal-card editor-card" id="memoryForm">
+      <button class="close" type="button" id="closeEditor" aria-label="Cerrar">×</button>
+      <p class="eyebrow" id="editorEyebrow">NUEVO CAPÍTULO</p>
+      <h2 id="editorHeading">Guardemos esto.</h2>
+      <label>Nombre del recuerdo<input id="memoryTitle" required maxlength="48" placeholder="Ej. Concierto Humbe"></label>
+      <label>Fecha<input id="memoryDate" type="date" required></label>
+      <label>Lo que quieres recordar<textarea id="memoryDescription" maxlength="500" placeholder="Escribe aquí ese pequeño gran momento..."></textarea></label>
+      <label class="file-field">Portada<input id="memoryCover" type="file" accept="image/*" required><span id="memoryCoverLabel">elegir imagen</span></label>
+      <label class="file-field">Fotos y videos<input id="memoryMedia" type="file" accept="image/*,video/*" multiple><span id="memoryMediaLabel">añadir fotos y videos</span></label>
+      <label>Canción del recuerdo<input id="songSearch" type="search" autocomplete="off" placeholder="Busca una canción... Ej. Flores Humbe"></label>
+      <div class="song-results" id="songResults" hidden></div>
+      <div class="song-selected" id="songSelected" hidden>
+        <img id="songSelectedArt" alt="" width="46" height="46">
+        <div class="song-selected-info">
+          <p id="songSelectedTitle"></p>
+          <span id="songSelectedArtist"></span>
+        </div>
+        <button type="button" class="song-remove" id="songRemove" aria-label="Quitar canción">×</button>
+      </div>
+      <div class="song-trim" id="songTrim" hidden>
+        <span class="song-trim-title">elige el trocito (dentro del preview de 30s)</span>
+        <input type="range" id="songStart" min="0" max="25" step="1" value="0" aria-label="Segundo de inicio">
+        <div class="song-trim-row">
+          <button type="button" id="songTrimPlay">▶ escuchar desde aquí</button>
+          <span id="songStartLabel">desde 0:00</span>
+        </div>
+      </div>
+      <p class="form-note">Todo se guarda en la nube para que ambos lo vean en cualquier dispositivo.</p>
+      <button class="save-memory" type="submit" id="saveMemory">guardar para siempre</button>
+    </form>
+  </div>
+
+  <div class="toast" id="toast">un besito enviado ♡</div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

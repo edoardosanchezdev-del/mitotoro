@@ -1,0 +1,19 @@
+{
+  "name": "mitotoro",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/generate-quotes.mjs && vite build",
+    "preview": "vite preview",
+    "generate:quotes": "node scripts/generate-quotes.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1"
+  },
+  "devDependencies": {
+    "vite": "^6.2.0",
+    "vite-plugin-pwa": "^0.21.1"
+  }
+}
