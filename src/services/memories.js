@@ -14,7 +14,6 @@ const mapRow = (row, media = []) => ({
         title: row.song_title,
         artist: row.song_artist ?? '',
         artworkUrl: row.song_artwork_url ?? '',
-        startSeconds: row.song_start_seconds ?? 0,
         previewUrl: row.song_preview_url
           ?? (row.song_path ? storageService.getPublicUrl(row.song_path) : null)
       }
@@ -33,8 +32,7 @@ const songColumns = (song) => ({
   song_title: song?.title ?? null,
   song_artist: song?.artist ?? null,
   song_preview_url: song?.previewUrl ?? null,
-  song_artwork_url: song?.artworkUrl ?? null,
-  song_start_seconds: song?.startSeconds ?? 0
+  song_artwork_url: song?.artworkUrl ?? null
 });
 
 export const memoryService = {

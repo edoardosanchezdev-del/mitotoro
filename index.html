@@ -114,13 +114,6 @@
       <p class="eyebrow" id="modalDate"></p>
       <h2 id="modalTitle"></h2>
       <p id="modalText"></p>
-      <div class="share-panel" id="sharePanel" hidden>
-        <p>COMPARTIR RECUERDO</p>
-        <button type="button" class="share-btn share-btn--primary" id="shareStory">♡ compartir en historias y redes</button>
-        <button type="button" class="share-btn" id="shareWhatsApp">whatsapp</button>
-        <button type="button" class="share-btn" id="shareFacebook">facebook</button>
-        <button type="button" class="share-btn" id="shareCopy">copiar enlace</button>
-      </div>
       <div class="modal-actions" id="modalActions" hidden>
         <button type="button" class="modal-action" id="editMemory">editar recuerdo</button>
         <button type="button" class="modal-action modal-action--danger" id="deleteMemory">eliminar</button>
@@ -148,14 +141,6 @@
           <span id="songSelectedArtist"></span>
         </div>
         <button type="button" class="song-remove" id="songRemove" aria-label="Quitar canción">×</button>
-      </div>
-      <div class="song-trim" id="songTrim" hidden>
-        <span class="song-trim-title">elige el trocito (dentro del preview de 30s)</span>
-        <input type="range" id="songStart" min="0" max="25" step="1" value="0" aria-label="Segundo de inicio">
-        <div class="song-trim-row">
-          <button type="button" id="songTrimPlay">▶ escuchar desde aquí</button>
-          <span id="songStartLabel">desde 0:00</span>
-        </div>
       </div>
       <p class="form-note">Todo se guarda en la nube para que ambos lo vean en cualquier dispositivo.</p>
       <button class="save-memory" type="submit" id="saveMemory">guardar para siempre</button>

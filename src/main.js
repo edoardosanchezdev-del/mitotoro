@@ -2,6 +2,7 @@ import { registerSW } from 'virtual:pwa-register';
 import { isConfigured } from './config.js';
 import { quoteService } from './services/quotes.js';
 import { createAuthGate } from './ui/auth.js';
+import { initFloaties } from './ui/floaties.js';
 import { createMemoriesController } from './ui/memories.js';
 import { createNavigation } from './ui/navigation.js';
 import { initReveal } from './ui/reveal.js';
@@ -23,7 +24,15 @@ const boot = async () => {
   const revealObserver = initReveal();
   const { changePage } = createNavigation();
 
-  document.querySelector('#heartButton').addEventListener('click', () => showToast('un besito enviado ♡'));
+  const spawnFloaty = initFloaties();
+
+  document.querySelector('#heartButton').addEventListener('click', () => {
+    showToast('un besito enviado ♡');
+    // Un besito también invoca amiguitos.
+    spawnFloaty();
+    setTimeout(spawnFloaty, 350);
+    setTimeout(spawnFloaty, 750);
+  });
 
   if (!isConfigured()) {
     document.querySelector('#configWarning').hidden = false;
@@ -38,7 +47,6 @@ const boot = async () => {
         memoriesController = createMemoriesController({ showToast, revealObserver, changePage });
       }
       await memoriesController.refresh();
-      await memoriesController.openFromQuery();
     }
   });
 

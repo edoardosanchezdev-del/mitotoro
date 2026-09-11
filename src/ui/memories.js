@@ -1,6 +1,5 @@
 import { memoryService } from '../services/memories.js';
 import { musicService } from '../services/music.js';
-import { shareService } from '../services/share.js';
 import { renderCarousel } from './carousel.js';
 
 const formatDate = (value) => new Intl.DateTimeFormat('es-MX', {
@@ -13,7 +12,6 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
   const modal = document.querySelector('#modal');
   const detailCard = document.querySelector('#detailCard');
   const modalActions = document.querySelector('#modalActions');
-  const sharePanel = document.querySelector('#sharePanel');
   const editor = document.querySelector('#editor');
   const form = document.querySelector('#memoryForm');
   const saveBtn = document.querySelector('#saveMemory');
@@ -29,10 +27,6 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
   const songSearchInput = document.querySelector('#songSearch');
   const songResults = document.querySelector('#songResults');
   const songSelected = document.querySelector('#songSelected');
-  const songTrim = document.querySelector('#songTrim');
-  const songStartInput = document.querySelector('#songStart');
-  const songStartLabel = document.querySelector('#songStartLabel');
-  const songTrimPlay = document.querySelector('#songTrimPlay');
 
   let memories = [];
   let viewingMemory = null;
@@ -44,8 +38,6 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
 
   /* ------------------------------ canciones ------------------------------ */
 
-  const formatSeconds = (value) => `0:${String(value).padStart(2, '0')}`;
-
   const stopPreview = () => {
     previewAudio?.pause();
     previewAudio = null;
@@ -53,50 +45,24 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
       btn.classList.remove('playing');
       btn.textContent = '▶';
     });
-    songTrimPlay.textContent = '▶ escuchar desde aquí';
   };
 
   const renderSelectedSong = () => {
     songSelected.hidden = !selectedSong;
-    songTrim.hidden = !selectedSong;
     if (!selectedSong) return;
     document.querySelector('#songSelectedArt').src = selectedSong.artworkUrl || '';
     document.querySelector('#songSelectedTitle').textContent = selectedSong.title;
     document.querySelector('#songSelectedArtist').textContent = selectedSong.artist;
-    songStartInput.value = String(selectedSong.startSeconds ?? 0);
-    songStartLabel.textContent = `desde ${formatSeconds(selectedSong.startSeconds ?? 0)}`;
   };
 
   const selectSong = (song) => {
     stopPreview();
-    selectedSong = { ...song, startSeconds: 0 };
+    selectedSong = song;
     songResults.hidden = true;
     songResults.innerHTML = '';
     songSearchInput.value = '';
     renderSelectedSong();
   };
-
-  songStartInput.addEventListener('input', () => {
-    if (!selectedSong) return;
-    selectedSong.startSeconds = Number(songStartInput.value);
-    songStartLabel.textContent = `desde ${formatSeconds(selectedSong.startSeconds)}`;
-    if (previewAudio) previewAudio.currentTime = selectedSong.startSeconds;
-  });
-
-  songTrimPlay.addEventListener('click', () => {
-    if (!selectedSong) return;
-    if (previewAudio) {
-      stopPreview();
-      return;
-    }
-    previewAudio = new Audio(selectedSong.previewUrl);
-    previewAudio.addEventListener('loadedmetadata', () => {
-      if (previewAudio) previewAudio.currentTime = selectedSong.startSeconds ?? 0;
-    }, { once: true });
-    previewAudio.play();
-    previewAudio.onended = stopPreview;
-    songTrimPlay.textContent = '❚❚ pausar';
-  });
 
   const renderSongResults = (items) => {
     songResults.innerHTML = '';
@@ -171,29 +137,44 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
 
     const block = document.createElement('div');
     block.className = 'memory-song';
-    block.innerHTML = `
-      <p class="memory-song-label">♫ nuestra canción</p>
-      <div class="memory-song-row">
-        ${memory.song.artworkUrl ? `<img src="${memory.song.artworkUrl}" alt="" width="52" height="52">` : ''}
-        <p class="memory-song-meta">${memory.song.title}${memory.song.artist ? `<span>${memory.song.artist}</span>` : ''}</p>
-      </div>
-    `;
+    block.innerHTML = '<p class="memory-song-label">♫ nuestra canción</p>';
+
     const audio = document.createElement('audio');
-    audio.controls = true;
     audio.preload = 'none';
     audio.src = memory.song.previewUrl;
-    const start = memory.song.startSeconds ?? 0;
-    if (start > 0) {
-      audio.addEventListener('loadedmetadata', () => { audio.currentTime = start; }, { once: true });
-    }
-    block.append(audio);
+    audio.volume = 0.5;
+
+    const cover = document.createElement('button');
+    cover.type = 'button';
+    cover.className = 'song-cover';
+    cover.setAttribute('aria-label', `Reproducir ${memory.song.title}`);
+    cover.innerHTML = `
+      ${memory.song.artworkUrl ? `<img src="${memory.song.artworkUrl}" alt="">` : '<span class="song-cover-fallback">♫</span>'}
+      <span class="song-cover-state">▶</span>
+    `;
+
+    const state = cover.querySelector('.song-cover-state');
+    cover.addEventListener('click', () => {
+      if (audio.paused) audio.play();
+      else audio.pause();
+    });
+    audio.addEventListener('play', () => { state.textContent = '❚❚'; cover.classList.add('playing'); });
+    audio.addEventListener('pause', () => { state.textContent = '▶'; cover.classList.remove('playing'); });
+    audio.addEventListener('ended', () => { audio.currentTime = 0; });
+
+    const row = document.createElement('div');
+    row.className = 'memory-song-row';
+    const meta = document.createElement('p');
+    meta.className = 'memory-song-meta';
+    meta.innerHTML = `${memory.song.title}${memory.song.artist ? `<span>${memory.song.artist}</span>` : ''}`;
+    row.append(cover, meta);
+    block.append(row, audio);
     detailCard.querySelector('.modal-hearts').before(block);
   };
 
-  const openMemory = (memory, { editable = false, shareable = false } = {}) => {
-    viewingMemory = editable || shareable ? memory : null;
+  const openMemory = (memory, { editable = false } = {}) => {
+    viewingMemory = editable ? memory : null;
     modalActions.hidden = !editable;
-    sharePanel.hidden = !shareable;
 
     document.querySelector('#modalTitle').textContent = memory.title;
     document.querySelector('#modalDate').textContent = memory.id
@@ -221,7 +202,6 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
     modal.setAttribute('aria-hidden', 'true');
     viewingMemory = null;
     modalActions.hidden = true;
-    sharePanel.hidden = true;
   };
 
   /* ------------------------------ editor ------------------------------ */
@@ -298,7 +278,7 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
           <h3>${memory.title.replace(/ /g, '<br>')}</h3>
           <span>ver recuerdos <b>→</b></span>
         </div>`;
-      card.addEventListener('click', () => openMemory(memory, { editable: true, shareable: true }));
+      card.addEventListener('click', () => openMemory(memory, { editable: true }));
       list.append(card);
       revealObserver.observe(card);
     });
@@ -307,16 +287,6 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
   const refresh = async () => {
     memories = await memoryService.list();
     renderMemories();
-  };
-
-  const openFromQuery = async () => {
-    const id = new URLSearchParams(window.location.search).get('m');
-    if (!id) return;
-    const memory = await memoryService.getById(id);
-    if (!memory) return;
-    changePage('recuerdos');
-    openMemory(memory, { shareable: true });
-    window.history.replaceState({}, '', window.location.pathname);
   };
 
   /* ------------------------------ eventos ------------------------------ */
@@ -388,30 +358,5 @@ export const createMemoriesController = ({ showToast, revealObserver, changePage
     }
   });
 
-  document.querySelector('#shareStory').addEventListener('click', async () => {
-    if (!viewingMemory) return;
-    try {
-      const result = await shareService.shareStory(viewingMemory);
-      if (result === 'shared') showToast('recuerdo compartido ♡');
-      if (result === 'downloaded') showToast('imagen descargada: súbela a tu historia ♡');
-    } catch {
-      showToast('no se pudo compartir');
-    }
-  });
-
-  document.querySelector('#shareWhatsApp').addEventListener('click', () => {
-    if (viewingMemory) shareService.openWhatsApp(viewingMemory);
-  });
-
-  document.querySelector('#shareFacebook').addEventListener('click', () => {
-    if (viewingMemory) shareService.openFacebook(viewingMemory);
-  });
-
-  document.querySelector('#shareCopy').addEventListener('click', async () => {
-    if (!viewingMemory) return;
-    await shareService.copyLink(viewingMemory);
-    showToast('enlace copiado ♡');
-  });
-
-  return { refresh, openFromQuery };
+  return { refresh };
 };

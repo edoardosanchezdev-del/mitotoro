@@ -13,7 +13,6 @@ create table if not exists public.memories (
   song_artist text,
   song_preview_url text,
   song_artwork_url text,
-  song_start_seconds int not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

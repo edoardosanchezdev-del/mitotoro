@@ -45,17 +45,12 @@ body { background: linear-gradient(135deg, #dce4ed 0%, var(--beige) 100%); }
 .file-field span { border-color: var(--turquoise); color: var(--blue); }
 .carousel-controls { color: var(--purple) !important; }
 .carousel-controls button { border-color: var(--turquoise) !important; color: var(--blue) !important; }
-.modal-action, .share-btn { border-color: var(--turquoise); color: var(--blue); }
-.modal-action:hover, .share-btn:hover { background: var(--turquoise); }
-.share-btn--primary { background: var(--purple); border-color: var(--purple); color: #fff; }
-.share-btn--primary:hover { background: #5a3d6e; }
+.modal-action { border-color: var(--turquoise); color: var(--blue); }
+.modal-action:hover { background: var(--turquoise); }
 .song-play { border-color: var(--turquoise) !important; color: var(--blue) !important; }
 .song-play.playing { background: var(--turquoise); }
-.song-trim { border-color: var(--turquoise); }
-.song-trim input[type=range] { accent-color: var(--purple); }
-.song-trim-row button { border-color: var(--turquoise); color: var(--blue); }
-.modal-action--danger, .share-btn--accent { border-color: #e8a8a8; color: #b04a4a; }
-.modal-action--danger:hover, .share-btn--accent:hover { background: #fce8e8; }
+.modal-action--danger { border-color: #e8a8a8; color: #b04a4a; }
+.modal-action--danger:hover { background: #fce8e8; }
 
 .bottom-nav {
   position: fixed;
